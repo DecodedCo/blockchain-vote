@@ -84,6 +84,10 @@ hyperledger.createVotesAndAssignToAll = function () {
     return getOptions("chaincode", "invoke", "createVotesAndAssignToAll", [], 2600)
 }
 
+hyperledger.giveVoteToCandidate = function (voteId, candidateId) {
+    return getOptions("chaincode", "invoke", "createVotesAndAssignToAll", [ voteId, candidateId ], 2600)
+}
+
 hyperledger.getChain = function () {
     return { method: "GET", url: hyperledger.URL + 'chain', json: true };
 }

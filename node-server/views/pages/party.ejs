@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="extra content">
                                     <% if (party.votestoassign) { %>
-                                        <div class="ui green button vote-for" id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
+                                        <div class="ui blue button vote-for" id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
                                     <% } else { %>
                                         <div class="ui disabled button">Wait for voting to begin</div>
                                     <% } %>
@@ -67,6 +67,18 @@
                     .addClass('disabled')
                     .html('Vote submitted');
                 candidatesIndexContainer.addClass('loading');
+                assignVotes.click(function(){
+                    partiesIndexContainer.addClass('loading');
+                    $.ajax({
+                        type        : 'POST',
+                        url         : 'api/vote/createandassigntoall'
+                    }).done( function(data) {  // using the done promise callback
+                        if (data.state === 'success') {
+                            wait(2000);
+                            readParties();
+                        }
+                    });
+                });
                 var candidateId = this.id;
             });
 

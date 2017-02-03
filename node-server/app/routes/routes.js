@@ -76,8 +76,30 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
             });
     });
 
-    app.post('/api/votes/createandassigntoall', function (req, res) {
+    app.post('/api/vote/createandassigntoall', function (req, res) {
         requestpromise(hyperledger.createVotesAndAssignToAll())
+            .then( function (data) {
+                // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
+                if ( manualErrorCheck(data) ) {
+                    // At this moment we dont know for sure the add-data invoke was successful, we cant see internal errors.
+                    // Send success as JSON
+                    res.status(200).json( { 
+                        'state': 'success',
+                        'data': data
+                    });
+                }
+                else {
+                    res.status(500).json(data);
+                }
+            })
+            .catch( function (error) {
+                res.status(500).json(error);
+            });
+    });
+
+    app.post('/api/vote/tocandidate', function (req, res) {
+        
+        requestpromise(hyperledger.giveVoteToCandidate(voteId, candidateId))
             .then( function (data) {
                 // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
                 if ( manualErrorCheck(data) ) {

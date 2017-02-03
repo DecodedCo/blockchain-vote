@@ -79,7 +79,7 @@
             partiesIndexContainer.addClass('loading');
             $.ajax({
                 type        : 'POST',
-                url         : 'api/votes/createandassigntoall'
+                url         : 'api/vote/createandassigntoall'
             }).done( function(data) {  // using the done promise callback
                 if (data.state === 'success') {
                     wait(2000);
