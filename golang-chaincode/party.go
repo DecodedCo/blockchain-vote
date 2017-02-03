@@ -1,15 +1,21 @@
 package main
 
+
 import (
     "encoding/json"
     "errors"
     "fmt"
     "strconv"
+    "sort"
 
     "github.com/hyperledger/fabric/core/chaincode/shim"
 
     utils "./utils"
 )
+
+
+// ============================================================================================================================
+
 
 type Party struct {
     Id              string      `json:"id"`
@@ -19,6 +25,29 @@ type Party struct {
     VotesToAssign   []string    `json:"votestoassign"`
     VotesReceived   []string    `json:"votesreceived"`
 }
+
+
+type Candidates []Party // To assign the sorting functions
+
+
+// ============================================================================================================================
+
+
+func (slice Candidates) Len() int {
+    return len(slice)
+}
+
+func (slice Candidates) Less(i, j int) bool {
+    return len(slice[i].VotesReceived) > len(slice[j].VotesReceived);
+}
+
+func (slice Candidates) Swap(i, j int) {
+    slice[i], slice[j] = slice[j], slice[i]
+}
+
+
+// ============================================================================================================================
+
 
 func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
@@ -33,7 +62,13 @@ func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn st
     // Get all the parties that are currently in the system.
     partyIds, err := dcc.getDataArrayStrings(stub, PRIMARYKEY[0], emptyArgs)
     if err != nil {
-        fmt.Printf("\t *** %s", err)
+        utils.PrintErrorFull("createParty - getDataArrayStrings", err)
+        return nil, err
+    }
+    // Get all the candidates that are currently in the system.
+    candidateIds, err := dcc.getDataArrayStrings(stub, PRIMARYKEY[2], emptyArgs)
+    if err != nil {
+        utils.PrintErrorFull("createParty - getDataArrayStrings", err)
         return nil, err
     }
     // Check if the partyId exists in the current ledger of parties.
@@ -61,23 +96,32 @@ func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn st
             fmt.Printf("\t *** %s", err)
             return nil, err
         }
-        // Add party to the list.
+        // Add party to the ledger.
         _, err = dcc.saveStringToDataArray(stub, PRIMARYKEY[0], partyId, partyIds)
         if err != nil {
-            fmt.Printf("\t *** %s", err)
+            utils.PrintErrorFull("createParty - saveStringToDataArray", err)
             return nil, err
         }
+        // If it is a candidate, add the the candidates-ledger
+        if newParty.Candidate {
+            _, err = dcc.saveStringToDataArray(stub, PRIMARYKEY[2], partyId, candidateIds)
+            if err != nil {
+                utils.PrintErrorFull("createParty - saveStringToDataArray", err)
+                return nil, err
+            }
+        }
         // Done!
-        fmt.Println("\t--- Added a new party: " + partyId)
+        utils.PrintSuccess("Added a new party: " + partyId))
         return nil, nil
     } else {
         err = errors.New(partyId + "` already exists.")
-        fmt.Printf("\t *** %s", err)
+        utils.PrintErrorFull("createParty", err)
         return nil, err
     }
     // Redundancy.
     return nil, nil
 } // end of dcc.createParty
+
 
 func (dcc *DecodedChainCode) readParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
@@ -103,6 +147,7 @@ func (dcc *DecodedChainCode) readParty(stub shim.ChaincodeStubInterface, fn stri
     fmt.Printf("\t--- Retrieved full information for Party %s", id)
     return returnSliceBytes, nil   
 }
+
 
 func (dcc *DecodedChainCode) readAllParties(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
@@ -144,6 +189,7 @@ func (dcc *DecodedChainCode) readAllParties(stub shim.ChaincodeStubInterface, fn
     return nil, nil // redundancy
 } // end of dcc.readAllParties
 
+
 func (dcc *DecodedChainCode) getParty(stub shim.ChaincodeStubInterface, args []string) (Party, error) {
     var party Party // We need to have an empty party ready to return in case of an error.
     var err error
@@ -170,6 +216,7 @@ func (dcc *DecodedChainCode) getParty(stub shim.ChaincodeStubInterface, args []s
     }
     return party, nil
 } // end of dcc.getParty
+
 
 func (dcc *DecodedChainCode) updateParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
@@ -203,6 +250,49 @@ func (dcc *DecodedChainCode) updateParty(stub shim.ChaincodeStubInterface, fn st
     return nil, nil
 } // end of dcc.assignAssetToParty
 
+
+func (dcc *DecodedChainCode) readAllCandidates(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
+    var err error
+    if len(args) != 0 {
+        err = errors.New("{\"Error\":\"Expecting 0 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
+        utils.PrintErrorFull("", err)
+        return nil, err
+    }
+    // Get candidates main ledger.
+    candidateIds, err := dcc.getDataArrayStrings(stub, PRIMARYKEY[2], emptyArgs)
+    if err != nil {
+        utils.PrintErrorFull("readAllCandidates - getDataArrayStrings", err)
+        return nil, err
+    }
+    // Iterate over all candidates to get the full details
+    if len(partyIds) > 0 {
+        // Initialise an empty slice for the output
+        var candidatesLedger []Party
+        // Iterate over all parties and return the party object.
+        for _, candidateId := range candidateIds {
+            thisCandidate, err := dcc.getParty(stub, []string{ candidateId })
+            if err != nil {
+                utils.PrintErrorFull("readAllCandidates - getParty", err)
+                return nil, err
+            }
+            candidatesLedger = append(candidatesLedger, thisCandidate)
+        }
+        // Sort the ledger by... number of votes received. (len(VotesReceived))
+        sort.Sort(candidatesLedger)
+        // This gives us an slice with parties. Translate to bytes and return
+        partiesLedgerBytes, err := json.Marshal(&candidatesLedger)
+        if err != nil {
+            utils.PrintErrorFull("readAllCandidates - Marshal", err)
+            return nil, err
+        }
+        utils.PrintSucces("Retrieved full information for all Parties.")
+        return partiesLedgerBytes, nil 
+    } else {
+        return nil, nil
+    }
+} // readAllCandidates
+
+
 func (p *Party) save(stub shim.ChaincodeStubInterface) (error) {
     var err error
     partyBytesToWrite, err := json.Marshal(&p)
@@ -218,3 +308,6 @@ func (p *Party) save(stub shim.ChaincodeStubInterface) (error) {
     fmt.Printf("\t --- Saved party %v to blockchain\n", &p.Id)
     return nil
 } // end of p.save
+
+
+// ============================================================================================================================
