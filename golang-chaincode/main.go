@@ -33,7 +33,7 @@ import (
 type DecodedChainCode struct {
 }
 
-var PRIMARYKEY = [2]string{ "Parties", "Votes", "Candidates" }
+var PRIMARYKEY = [3]string{ "Parties", "Votes", "Candidates" }
 
 
 // ============================================================================================================================

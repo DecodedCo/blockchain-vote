@@ -38,7 +38,7 @@ func (slice Candidates) Len() int {
 }
 
 func (slice Candidates) Less(i, j int) bool {
-    return len(slice[i].VotesReceived) > len(slice[j].VotesReceived);
+    return len(slice[i].VotesReceived) > len(slice[j].VotesReceived)
 }
 
 func (slice Candidates) Swap(i, j int) {
@@ -111,7 +111,7 @@ func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn st
             }
         }
         // Done!
-        utils.PrintSuccess("Added a new party: " + partyId))
+        utils.PrintSuccess("Added a new party: " + partyId)
         return nil, nil
     } else {
         err = errors.New(partyId + "` already exists.")
@@ -253,6 +253,7 @@ func (dcc *DecodedChainCode) updateParty(stub shim.ChaincodeStubInterface, fn st
 
 func (dcc *DecodedChainCode) readAllCandidates(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
+    var emptyArgs []string
     if len(args) != 0 {
         err = errors.New("{\"Error\":\"Expecting 0 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
         utils.PrintErrorFull("", err)
@@ -265,7 +266,7 @@ func (dcc *DecodedChainCode) readAllCandidates(stub shim.ChaincodeStubInterface,
         return nil, err
     }
     // Iterate over all candidates to get the full details
-    if len(partyIds) > 0 {
+    if len(candidateIds) > 0 {
         // Initialise an empty slice for the output
         var candidatesLedger []Party
         // Iterate over all parties and return the party object.
@@ -278,14 +279,14 @@ func (dcc *DecodedChainCode) readAllCandidates(stub shim.ChaincodeStubInterface,
             candidatesLedger = append(candidatesLedger, thisCandidate)
         }
         // Sort the ledger by... number of votes received. (len(VotesReceived))
-        sort.Sort(candidatesLedger)
+        sort.Sort(Candidates(candidatesLedger))
         // This gives us an slice with parties. Translate to bytes and return
         partiesLedgerBytes, err := json.Marshal(&candidatesLedger)
         if err != nil {
             utils.PrintErrorFull("readAllCandidates - Marshal", err)
             return nil, err
         }
-        utils.PrintSucces("Retrieved full information for all Parties.")
+        utils.PrintSuccess("Retrieved full information for all Parties.")
         return partiesLedgerBytes, nil 
     } else {
         return nil, nil
