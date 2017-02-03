@@ -33,7 +33,7 @@ import (
 type DecodedChainCode struct {
 }
 
-var PRIMARYKEY = [2]string{ "Parties", "Votes" }
+var PRIMARYKEY = [3]string{ "Parties", "Votes", "Candidates" }
 
 
 // ============================================================================================================================
@@ -53,10 +53,6 @@ func main() {
 
 // Init resets all the things
 func (dcc *DecodedChainCode) Init(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
-    
-    utils.GetExchangeRate()
-    utils.GetBTCUSD()
-
     var err error
     if len(args) != 0 {
         err = errors.New("{\"Error\":\"Incorrect number of arguments\", \"Function\":\"" + fn + "\"}")
@@ -79,8 +75,12 @@ func (dcc *DecodedChainCode) Init(stub shim.ChaincodeStubInterface, fn string, a
         fmt.Printf("\t *** %s", err)
         return nil, err
     }
+    if err = stub.PutState(PRIMARYKEY[2], blankBytes); err != nil {
+        fmt.Printf("\t *** %s", err)
+        return nil, err
+    }
     // Done.
-    fmt.Println("\t--- Initialisation complete")
+    utils.PrintSuccess("Initialisation complete")
     return nil, nil
 } 
 
@@ -110,10 +110,11 @@ func (dcc *DecodedChainCode) Query(stub shim.ChaincodeStubInterface, fn string, 
         return dcc.readParty(stub, fn, args)
     } else if fn == "readAllParties" {
         return dcc.readAllParties(stub, fn, args)
+    } else if fn == "readAllCandidates" {
+        return dcc.readAllCandidates(stub, fn, args)
     }
     fmt.Println("\t*** ERROR: Query function did not find ChainCode function: " + fn)
     return nil, errors.New(" --- QUERY ERROR: Received unknown function query")
-    return nil, nil
 }
 
 

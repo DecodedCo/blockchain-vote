@@ -12,9 +12,17 @@ import (
     // utils "./utils"
 )
 
+
+// ============================================================================================================================
+
+
 type Vote struct {
     Uuid         string      `json:"uuid"`
 }
+
+
+// ============================================================================================================================
+
 
 func (dcc *DecodedChainCode) createVotesAndAssignToAll(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
@@ -66,6 +74,7 @@ func (dcc *DecodedChainCode) createVotesAndAssignToAll(stub shim.ChaincodeStubIn
     return nil, nil
 } // end of dcc.createvotesAndAssignToAll
 
+
 func (v *Vote) save(stub shim.ChaincodeStubInterface) (error) {
     var err error
     voteBytesToWrite, err := json.Marshal(&v)
@@ -81,3 +90,6 @@ func (v *Vote) save(stub shim.ChaincodeStubInterface) (error) {
     fmt.Printf("\t --- Saved vote %+v to blockchain\n", &v)
     return nil
 } // end of p.save
+
+
+// ============================================================================================================================

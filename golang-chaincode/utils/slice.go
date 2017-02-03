@@ -3,8 +3,6 @@ package utils
 
 
 import (
-    "crypto/sha256"
-    "encoding/hex"
 )
 
 
@@ -44,16 +42,7 @@ func FindElementIndex(slice []string, element string) (int) {
     }
     // Failsafe return.
     return ix
-}
-
-
-// Function to return the SHA256 for
-func HashSHA256(s string) (string) {
-    h := sha256.New()
-    h.Write([]byte(s))
-    sha256Hash := hex.EncodeToString(h.Sum(nil))
-    return sha256Hash
-}   
+}  
 
 
 // Function to delete an element from a slice.?
