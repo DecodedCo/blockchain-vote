@@ -1,0 +1,20 @@
+
+#page-menu {
+    background: white;
+    border-bottom: 2px solid #ccc;
+}
+
+#page-container {
+    margin-top:50px; 
+    margin-bottom: 200px;
+}
+
+#footer {
+    position:fixed; 
+    bottom:0px; 
+    left:0px; 
+    height:160px; 
+    width:100%; 
+    background: #ddd;
+    border-top: 3px solid #aaa;
+}

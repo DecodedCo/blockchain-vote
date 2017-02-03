@@ -1,0 +1,40 @@
+## Node
+node-server/node_modules/
+
+## Golang
+
+# Ignore all
+golang-chaincode/*
+
+# Unignore all with extensions
+!golang-chaincode/*.*
+
+# Unignore all dirs
+!golang-chaincode/*/
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+golang-chaincode/*.o
+golang-chaincode/*.a
+golang-chaincode/*.so
+
+# Apple dir. file.
+golang-chaincode/.DS_Store
+
+# Folders
+golang-chaincode/_obj
+golang-chaincode/_test
+
+# Architecture specific extensions/prefixes
+golang-chaincode/*.[568vq]
+golang-chaincode/[568vq].out
+
+golang-chaincode/*.cgo1.go
+golang-chaincode/*.cgo2.c
+golang-chaincode/_cgo_defun.c
+golang-chaincode/_cgo_gotypes.go
+golang-chaincode/_cgo_export.*
+
+golang-chaincode/_testmain.go
+
+golang-chaincode/*.exe
+golang-chaincode/*.test

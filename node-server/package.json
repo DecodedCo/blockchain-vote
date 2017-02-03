@@ -1,0 +1,21 @@
+{
+  "name": "hyperledger-nodejs",
+  "version": "0.0.1",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "latest",
+    "ejs": "latest",
+    "express": "latest",
+    "hfc": "^0.6.5",
+    "morgan": "latest",
+    "request": "^2.74.0",
+    "request-promise": "latest",
+    "socket.io": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <% include ../components/page-head %>
+    </head>
+    <body>
+        <div class="ui container">
+            <div class="ui basic segment">
+                <div class="ui hidden divider"></div>
+                <h1 class="ui header" id="hi-party">Hi, <%= party.name %></h1>
+                <% if (party.voter && party.votestoassign) { %>
+                    <p>Choose your favourite candidate.</p>
+                    <p>Think carefully - you only have one vote :)</p>
+                <% } else if (party.voter && !party.votestoassign) { %>
+                    <p>Wait a moment while your vote is assigned.</p>
+                    <p>In the meantime - check out the candidates below :)</p>
+                <% } else { %>
+                    <p>It doesn't look like you're registered to vote :(</p>
+                    <p>Floating business guy says 'Soz'</p>
+                    <p  style="font-size:10em;margin:0;">🕴</p>                
+                    <button class="ui blue button" id="register">
+                        Register now
+                    </button>
+                <% } %>
+            </div>
+            <div class="ui basic segment">
+                <% if (party.voter) { %>
+                    <h2 class="ui header">Candidates</h2>
+                    <div class="ui hidden divider"></div>
+                    <div class="ui cards" id="candidates-index">
+                        <% candidates.forEach(candidate => {%>
+                            <div class="card">
+                                <div class="content">
+                                    <div class="header">
+                                        <%= candidate.name %>
+                                    </div>
+                                    <div class="description">Some stuff about the candidate</div>
+                                </div>
+                                <div class="extra content">
+                                    <% if (party.votestoassign) { %>
+                                        <div class="ui green button vote-for" id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
+                                    <% } else { %>
+                                        <div class="ui disabled button">Wait for voting to begin</div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <script>
+
+            $('#register').one('click', function () {
+                localStorage.clear();
+                window.location = '/';
+            });
+
+            var voteForButton = $('.vote-for'),
+                candidatesIndex = $('#candidates-index'),
+                candidatesIndexContainer = candidatesIndex.parent()
+
+            voteForButton.one('click', function () {
+                voteForButton
+                    .removeClass('green')
+                    .addClass('disabled')
+                    .html('Vote submitted');
+                candidatesIndexContainer.addClass('loading');
+                var candidateId = this.id;
+            });
+
+        </script>
+    </body>
+</html>

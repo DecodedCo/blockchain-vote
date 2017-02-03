@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <% include ../components/page-head %>
+    </head>
+    <body>
+        <div class="ui container">
+            
+            <div class="ui basic segment">
+                <div class="ui hidden divider"></div>
+                <h1 class="ui header">Vote.ly</h1>
+            </div>
+            <div class="ui basic segment">
+                <form class="ui form" id="create-party">
+                    <div class="six wide field">
+                        <label>Name</label>
+                        <input type="text" name="name">
+                    </div>
+                    <div class="field">
+                        <div class="ui toggle checkbox">
+                            <label>is Voter</label>
+                            <input type="checkbox" tabindex="0" class="hidden" name="voter">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui toggle checkbox">
+                            <label>is Candidate</label>
+                            <input type="checkbox" tabindex="0" class="hidden" name="candidate">
+                        </div>
+                    </div>
+                    <button class="ui blue button" type="submit">
+                        Create party
+                    </button>
+                </form>
+            </div>
+            <div class="ui basic segment" >
+                <button class="ui green button" id="assign-votes">
+                    Assign votes to voters
+                </button>
+            </div>
+            <div class="ui basic segment" >
+                <h2 class="ui header">Parties</h2>
+                <div class="ui cards" id="parties-index">
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        
+        var partiesIndex = $('#parties-index'),
+            partiesIndexContainer = partiesIndex.parent(),
+            createPartyForm = $('#create-party'),
+            assignVotes = $('#assign-votes');
+        
+        createPartyForm.submit(function(e){
+            e.preventDefault();
+            partiesIndexContainer.addClass('loading');
+            var formData = {
+                'partyId'   : guid();,
+                'name': $('input[name=name]').val(),
+                'voter': $('input[name=voter]').is(':checked'),
+                'candidate': $('input[name=candidate]').is(':checked')
+            };
+            createPartyForm.trigger('reset');
+            $.ajax({
+                type        : 'POST',
+                url         : 'api/party/create',
+                data        : formData,
+                encode      : true
+            }).done( function(data) {  // using the done promise callback
+                if (data.state === 'success') {
+                    wait(2000);
+                    readParties();
+                }
+            });
+        });
+
+        assignVotes.click(function(){
+            partiesIndexContainer.addClass('loading');
+            $.ajax({
+                type        : 'POST',
+                url         : 'api/votes/createandassigntoall'
+            }).done( function(data) {  // using the done promise callback
+                if (data.state === 'success') {
+                    wait(2000);
+                    readParties();
+                }
+            });
+        });
+
+        function readParties () {
+            console.log('Getting all parties on the chain');
+            $.ajax({
+                type        : 'GET',
+                url         : 'api/party/readall'
+            }).done( function(data) {  // using the done promise callback
+                console.log(data);
+                if (data.state === 'success') {
+                    partiesIndex.html('');
+                    partiesIndexContainer.removeClass('loading');
+                    for (var i = 0; i < data.data.length; i++) {
+                        var party = data.data[i];
+                        partiesIndex.append(
+                            '<div class="card"><div class="content"><div class="header">' 
+                                + party.name + 
+                            '</div><div class="meta">' 
+                                + party.id + 
+                            '</div><div class="description">' 
+                                + (party.voter ? 'Voter<br>' : '')
+                                + (party.votestoassign && !!party.votestoassign.length ? 'Votes to assign: ' + party.votestoassign.toString() + '<br>' : '') 
+                                + (party.candidate ? 'Candidate<br>' : '') 
+                                + (party.votesreceived && !!party.votesreceived.length ? 'Votes to assign: ' + party.votesreceived.toString() + '<br>' : '') + 
+                            '</div></div></div>')
+
+                    }
+                } else {
+                    console.error('No data back from /api/party/read');
+                }
+            });
+        }
+
+        readParties()
+        // enable semantic ui checkboxes
+        $('.ui.checkbox')
+          .checkbox()
+        ;
+        </script>
+    </body>
+</html>
