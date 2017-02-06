@@ -1,6 +1,7 @@
 const express = require('express');    
 const bodyParser = require('body-parser');
 const requestpromise = require('request-promise');
+const randomcolor= require('randomcolor');
 
 // express app =======================================================
 const port = process.env.PORT || 3000;
@@ -40,7 +41,7 @@ app.use(bodyParser.json()); // get information from html forms
 
 
 // routes ============================================================
-require('./app/routes/routes.js')(app, requestpromise, hyperledger, socket);
+require('./app/routes/routes.js')(app, requestpromise, hyperledger, socket, randomcolor);
 
 
 // EOF

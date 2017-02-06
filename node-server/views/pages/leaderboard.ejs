@@ -1,0 +1,45 @@
+            <div class="ui basic segment">
+                <div class="ui hidden divider"></div>
+                <h1 class="ui header">The results...</h1>
+            </div>
+            <div class="ui basic segment">
+							<div class="ui cards">							
+								<% candidates.forEach((candidate, i) => { %>
+									<div class="ui card">
+									  <div class="image" style="height: 5em; background: <%=
+									  	randomcolor({
+										   luminosity: 'light'
+											}) %>;">
+									  	<div class="ui 
+											<% switch (i) {
+												case 0:%>
+												yellow
+											<% break; 
+												case 1:%>
+												grey
+											<% break; 
+												case 2:%>
+												brown
+											<% } %>
+									  	ribbon label"><%= i+1 %></div>
+									  </div>
+									  <div class="content">
+									    <div class="header"><%= candidate.name %></div>
+									    <% if (!!candidate.candidateUrl) { %>
+										    <div class="description">
+										    	<a href="<%= candidate.candidateUrl %>" target="_blank">See project</a>
+										    </div>
+										  <% } %>
+									  </div>
+									  <div class="extra content">
+									  	<% if (!!candidate.votesreceived.length) { %>
+									    <i class="green check icon"></i>
+									    <% } %>
+		    							<%= candidate.votesreceived.length || 'No' %> votes
+									  </div>
+									</div>
+								<% }) %>
+							</div>
+            </div>
+		        <script>		        
+		        </script>

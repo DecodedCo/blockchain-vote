@@ -1,0 +1,24 @@
+<!doctype html>  
+<html lang="en">  
+    <head>
+        <% include ./components/page-head %>
+    </head>
+    <body>        
+    		<div class="ui container">
+	        <% switch (page) { 
+	        	case 'register': %>
+	            <%- include('./pages/register'); %>
+	        <% break;
+	        	case 'party': %>
+							<%- include('./pages/party'); %>
+	        <% break;
+	        	case 'facilitator': %>
+	        		<%- include('./pages/facilitator'); %>
+	        <% break;
+	        	case 'leaderboard': %>
+	        		<%- include('./pages/leaderboard'); %>
+					<% } %>
+	        <% include ./components/page-chainfooter %> 
+				</div>
+    </body>
+</html>  

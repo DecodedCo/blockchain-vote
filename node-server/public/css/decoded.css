@@ -18,3 +18,8 @@
     background: #ddd;
     border-top: 3px solid #aaa;
 }
+
+#graph-container {
+    overflow-x: scroll;
+}
+

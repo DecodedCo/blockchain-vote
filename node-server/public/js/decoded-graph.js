@@ -1,16 +1,13 @@
-//
-
 var svgObj = d3.select("#svg-container"),
     width = +svgObj.attr("width"),
     height = +svgObj.attr("height")
     margin = { left: 15, top: 15, bottom: 15, right: 15, spacing: 8 },
     fontHeight = 12,
-    lbls = ['Genesis', 'Activity', 'Company', 'Asset', 'Transaction'],
+    lbls = ['Genesis', 'Party created', 'Vote created', 'Voting', 'Activity'],
     rowHeight = (height - margin.top) / lbls.length,
     radius = 10;
 
-
-function initBlockChainGraph (svg) {
+function initBlockChainGraph(svg) {
     // Create the groups.
     labels = svg.append("g").attr("class", "labels");
     edges = svg.append("g").attr("class", "edges");
@@ -37,14 +34,13 @@ function initBlockChainGraph (svg) {
         .attr("opacity", "0.1");
 }
 
-
 function labelCentre (thisLabelName) {
     var labelIx = lbls.indexOf(thisLabelName)
     return (margin.top + rowHeight * labelIx + 0.5 * (rowHeight-fontHeight));
 }
 
-
 function updateBlockChainGraph(data) {
+    console.log(data);
     var t = d3.transition().duration(750);
     // JOIN data with old data.
     var node = nodes.selectAll('.node')
@@ -88,13 +84,12 @@ function updateBlockChainGraph(data) {
         .attr("opacity", "0.6");
 }
 
-
-function displayBlock (blockData) {
+function displayBlock(blockData) {
     // Create table
     var tableBody = $('<table class="ui very basic table" id="table-block-inspector"><tbody></tbody></table>');
 
     // add transactions
-    if ( blockData.transactions.length > 0 ) {
+    if ( blockData.transactions && blockData.transactions.length > 0 ) {
         // tableBody.append('<tr><td colspan=2>TRANSACTIONS (' + blockData.transactions.length + ')</td></tr>');
         // tableBody.append('<tr><td colspan=2 style="text-align:center;">TRANSACTIONS (' + blockData.transactions.length + ')</td></tr>');
         for ( var t=0; t<blockData.transactions.length; t++ ) {
@@ -104,8 +99,8 @@ function displayBlock (blockData) {
         }
     }
     // Add block information
-    tableBody.append('<tr><td>Previous Block Hash</td><td>State Hash</td></tr>');
-    tableBody.append('<tr><td><div id="qrcode1" style="float:left;"></div></td><td><div id="qrcode2" style="float:left;"></div></td></tr>');
+    tableBody.append('<tr><td>Previous Block Hash: </td><td>' + ( blockData.previousBlockHash || 'None' ) + '</td></tr>');
+    tableBody.append('<tr><td>State Hash: </td><td>' + ( blockData.stateHash || 'None' ) + '</td></tr>');
     // in the onclick: $('#qrcode').qrcode(d.stateHash);
     // tableBody.append('<tr style="color:#ccc; font-weight: 200;"><td>State:</td><td style="overflow-wrap: break-word;">' + blockData.stateHash + '</td></tr>');
     // tableBody.append('<tr style="color:#ccc; font-weight: 200;"><td>Previous Block:</td><td style="overflow-wrap: break-word;">' + blockData.previousBlockHash + '</td></tr>');
@@ -114,23 +109,21 @@ function displayBlock (blockData) {
     return tableBody;
 }
 
-
-function processData ( dataArray, userTx ) {
+function processData(dataArray) {
     var outputArray = [];
-    var maxBlocks = 35;
-    var startIx = Math.max(0, dataArray.length-maxBlocks);
-    var endIx = Math.min(dataArray.length, maxBlocks+1);
-    // console.log(dataArray.length, startIx, endIx)
+    var maxBlocks = 300;
+    var startIndex = Math.max(0, dataArray.length-maxBlocks);
+    var endIndex = Math.min(dataArray.length, maxBlocks+1);    
     // For each object. Add the x-y coordinates for the circle.
     // For each object add the node-class.
     // For each object add the line to the previous (if applicable)
-    for ( var i=startIx; i<endIx; i++ ) {
+    for ( var i=startIndex; i<endIndex; i++ ) {
         obj = dataArray[i];
         // Initialise flags.
         obj['id'] = '';
         obj['type'] = '';
         obj['to'] = '';
-        obj['own'] = false;
+        obj['own'] = true;
         // Check if it is a transaction block.
         if ( 'transactions' in obj ) { 
             obj['id'] = obj.transactions[0].txid; // needs to be an array?
@@ -143,10 +136,16 @@ function processData ( dataArray, userTx ) {
         }
         //
         if ( !('ix' in obj) ) {
-            obj['ix'] = i - startIx;
+            obj['ix'] = i - startIndex;
         }
         // Get the x-coordinate.
         obj['cx'] = 100 + margin.left + radius + obj.ix * (radius * 2 + margin.spacing);
+        // extend the canvas and grid lines to accommodate blocks
+        var newWidth = obj.cx + 30;
+        svgObj.attr('width', newWidth);
+        d3.selectAll('.label').attr("x2", newWidth);
+        d3.selectAll('.gridline').attr("x2", newWidth - 30);
+
         // Get the y-coordinate and class...
         obj['cy'] = labelCentre('Activity'); // Default.
         obj['css'] = 'node';
@@ -154,33 +153,16 @@ function processData ( dataArray, userTx ) {
             obj['cy'] = labelCentre('Genesis');
             obj['css'] += ' genesis';
         } 
-        // Check if we have any user transactions to work with.
-        else if ( userTx != undefined && userTx.length > 0 && userTx.indexOf(obj.id) > -1 ) {
-            // obj['cy'] = labelCentre('Company');
-            obj['css'] += ' own';
-            obj['own'] = true;
-            // Now we need to determine the type of event.
-            if ( obj.transactions[0].payloadDecoded.indexOf('addOwnerString') !== -1 ) {
-                obj['cy'] = labelCentre('Company');
-                obj.transactions[0].payloadDecoded = parseAddOwner(obj.transactions[0].payloadDecoded);
-            }
-            else if ( obj.transactions[0].payloadDecoded.indexOf('addAssetString') !== -1 ) {
-                obj['cy'] = labelCentre('Asset');
-                obj.transactions[0].payloadDecoded = parseAddAsset(obj.transactions[0].payloadDecoded)
-            }
-            else if ( obj.transactions[0].payloadDecoded.indexOf('ransact') !== -1 ) {
-                obj['cy'] = labelCentre('Transaction');
-            }
-        }
         else if ( 'transactions' in obj ) {
-            if ( obj.transactions[0].payloadDecoded.indexOf('addOwnerString') !== -1 ) {
-                obj['cy'] = labelCentre('Company');
+            var payloadDecoded = obj.transactions[0].payloadDecoded;
+            if ( payloadDecoded.indexOf('createParty') !== -1 ) {
+                obj['cy'] = labelCentre('Party created');
             }
-            else if ( obj.transactions[0].payloadDecoded.indexOf('addAssetString') !== -1 ) {
-                obj['cy'] = labelCentre('Asset');
+            else if ( payloadDecoded.indexOf('createVotesAndAssignToAll') !== -1 ) {
+                obj['cy'] = labelCentre('Vote created');
             }
-            else if ( obj.transactions[0].payloadDecoded.indexOf('ransact') !== -1 ) {
-                obj['cy'] = labelCentre('Transaction');
+            else if ( payloadDecoded.indexOf('updateParty') !== -1 ) {
+                obj['cy'] = labelCentre('Voting');
             }
         }
         // Add the lines...
@@ -197,8 +179,6 @@ function processData ( dataArray, userTx ) {
     return outputArray;
 }
 
-
-
 function parseAddOwner(ss) {
     var output = '';
     output += 'Function: <strong>RegisterCompany</strong> as:<br/>';
@@ -208,7 +188,6 @@ function parseAddOwner(ss) {
     //output += 'The company has been assigned ID `<strong>' + ss.split('\n')[3] + '</strong>` with a balance of ' + ss.split('\n')[5].trim();
     return output;
 }
-
 
 function parseAddAsset(ss) {
     // console.log(ss.split('\n'))
@@ -228,7 +207,6 @@ function parseAddAsset(ss) {
     }
     return output
 }
-
 
 function parseTransactions(string){
     // 

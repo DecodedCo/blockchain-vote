@@ -1,9 +1,12 @@
 // Routes
 
-module.exports = function (app, requestpromise, hyperledger, socket) {
+module.exports = function (app, requestpromise, hyperledger, socket, randomcolor) {
 
     app.get('/', function (req, res) {
-        res.status(200).render('pages/register.ejs');
+        res.status(200).render('boilerplate.ejs', { 
+            page: 'register',
+            chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
+        });
     });
 
     app.get('/party/:id', function (req, res) {
@@ -16,8 +19,15 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
                         var parties = JSON.parse(data.result.message);
                         var party = parties.filter(item => item.id === req.params.id)[0];
                         var candidates = parties.filter(item => !!item.candidate );
+                        res.status(200).render('boilerplate.ejs', { 
+                            page: 'party', 
+                            party, 
+                            candidates,
+                            randomcolor,
+                            chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
+                        });
                     }
-                    res.status(200).render('pages/party.ejs', { party, candidates });
+                    
                 }
                 else {
                     res.status(500).json(data);
@@ -29,7 +39,35 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
     });
 
     app.get('/facilitator', function (req, res) {
-        res.status(200).render('pages/facilitator.ejs');
+        res.status(200).render('boilerplate.ejs', { 
+            page: 'facilitator',
+            chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN)) 
+        });
+    });
+
+    app.get('/leaderboard', function (req, res) {
+        requestpromise(hyperledger.readAllCandidates())
+            .then( function (data) {
+                // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
+                if ( manualErrorCheck(data) ) {
+                    // At this moment we dont know for sure the add-data invoke was successful, we cant see internal errors.
+                    if ( 'message' in data.result ) { // This is to avoid errors if there are no companies present.
+                        var candidates = JSON.parse(data.result.message);
+                        res.status(200).render('boilerplate.ejs', { 
+                            page: 'leaderboard',
+                            candidates,
+                            randomcolor, 
+                            chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
+                        });
+                    }
+                }
+                else {
+                    res.status(500).json(data);
+                }
+            })
+            .catch( function (error) {
+                res.status(500).json(error);
+            });
     });
 
     app.post('/api/party/create', function (req, res) {
@@ -131,6 +169,19 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
             })
             .catch( function (error) {
                 res.status(500).json(error);
+            });
+    });
+
+    // Full blockchain. - Also available in BLOCKCHAIN variable.
+    app.get('/api/blockchain', function (req, res) {
+        hyperledger.getFullBlockChain(requestpromise)
+            .then( function (data) {
+                console.log('\t=== UPDATING INTERNAL BLOCKCHAIN STATE.');
+                hyperledger.BLOCKCHAIN = data;
+                res.status(200).json(data);
+            })
+            .catch( function (err) {
+                res.status(500).json(err);
             });
     });
 

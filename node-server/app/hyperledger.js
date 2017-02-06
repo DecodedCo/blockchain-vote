@@ -80,6 +80,10 @@ hyperledger.readAllParties = function () {
     return getOptions("chaincode", "query", "readAllParties", [], 1337);
 }
 
+hyperledger.readAllCandidates = function () {
+    return getOptions("chaincode", "query", "readAllCandidates", [], 1337);
+}
+
 hyperledger.updateParty = function (id, votesToAssign, votesTransferred, votesReceived) {
     return getOptions("chaincode", "invoke", "updateParty", [ id, votesToAssign, votesTransferred, votesReceived ], 2600);
 }
@@ -101,7 +105,7 @@ hyperledger.getBlock = function (blockId) {
 }
 
 hyperledger.getFullBlockChain = function (requestpromise) {
-    console.log('\t*** Fetching the entire blockchain.');
+    console.log('\t *** Fetching the entire blockchain.');
     var optionsChain = hyperledger.getChain();
     // Return the promise itself.
     return requestpromise(optionsChain)
@@ -131,7 +135,7 @@ hyperledger.getFullBlockChain = function (requestpromise) {
             return chainPromise;
         })
         .then( function (chain) {
-            console.log('\t*** SUCCESS: Fetching the entire blockchain.');
+            console.log('\t *** SUCCESS: Fetching the entire blockchain.');
             var chainPromise = new Promise( function (resolve, reject) {
                 // Blockchain ready, we now need to decode the payloads.
                 for ( var b=0; b<chain.length; b++ ) {

@@ -1,10 +1,3 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <% include ../components/page-head %>
-    </head>
-    <body>
-        <div class="ui container">
             <div class="ui basic segment">
                 <div class="ui hidden divider"></div>
                 <h1 class="ui header">Register to vote</h1>
@@ -20,44 +13,38 @@
                     </button>
                 </form>
             </div>
-        </div>
-        
-        <script>
-        
-        var container =  $('.ui.container').hide();
-        // Check if the user already created a company.
-        if ( localStorage.getItem("blockchain-vote-party-id") != null ) {
-            window.location = "/party/" + localStorage.getItem("blockchain-vote-party-id");
-        }
-        container.show();
-        var registerPartyForm = $('#register-party');
-        registerPartyForm.one('submit', function(e){
-            e.preventDefault();
-            registerPartyForm.addClass('loading');
-            var name = $('input[name=name]').val(),
-                uuid = guid();
-            var formData = {
-                'partyId'       :   uuid,
-                'name'          :   name,
-                'voter'         :   true,
-                'candidate'     :   false,
-                'candidateUrl'  :   ''
-            };
-            $.ajax({
-                type        : 'POST',
-                url         : 'api/party/create',
-                data        : formData,
-                encode      : true
-            }).done( function(data) {  // using the done promise callback
-                if (data.state === 'success') {
-                    localStorage.setItem("blockchain-vote-party-id", uuid);
-                    localStorage.setItem("blockchain-vote-party-name", name);
-                    wait(DELAY);
-                    window.location = "/party/" + uuid;
-                }
+            <script>
+            var container =  $('.ui.container').hide();
+            // Check if the user already created a company.
+            if ( localStorage.getItem("blockchain-vote-party-id") != null ) {
+                window.location = "/party/" + localStorage.getItem("blockchain-vote-party-id");
+            }
+            container.show();
+            var registerPartyForm = $('#register-party');
+            registerPartyForm.one('submit', function(e){
+                e.preventDefault();
+                registerPartyForm.addClass('loading');
+                var name = $('input[name=name]').val(),
+                    uuid = guid();
+                var formData = {
+                    'partyId'       :   uuid,
+                    'name'          :   name,
+                    'voter'         :   true,
+                    'candidate'     :   false,
+                    'candidateUrl'  :   ''
+                };
+                $.ajax({
+                    type        : 'POST',
+                    url         : 'api/party/create',
+                    data        : formData,
+                    encode      : true
+                }).done( function(data) {  // using the done promise callback
+                    if (data.state === 'success') {
+                        localStorage.setItem("blockchain-vote-party-id", uuid);
+                        localStorage.setItem("blockchain-vote-party-name", name);
+                        wait(DELAY);
+                        window.location = "/party/" + uuid;
+                    }
+                });
             });
-        });
-
-        </script>
-    </body>
-</html>
+            </script>
