@@ -94,6 +94,8 @@ func (dcc *DecodedChainCode) Invoke(stub shim.ChaincodeStubInterface, fn string,
         return dcc.createParty(stub, fn, args)
     } else if fn == "createVotesAndAssignToAll" {
         return dcc.createVotesAndAssignToAll(stub, fn, args)
+    } else if fn == "updateParty" {
+        return dcc.updateParty(stub, fn, args)
     }
     // In any other case.
     fmt.Println("\t*** ERROR: Invoke function did not find ChainCode function: " + fn) // Error handling.

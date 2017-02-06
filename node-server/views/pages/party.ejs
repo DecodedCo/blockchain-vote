@@ -67,20 +67,59 @@
                     .addClass('disabled')
                     .html('Vote submitted');
                 candidatesIndexContainer.addClass('loading');
-                assignVotes.click(function(){
-                    partiesIndexContainer.addClass('loading');
-                    $.ajax({
-                        type        : 'POST',
-                        url         : 'api/vote/createandassigntoall'
-                    }).done( function(data) {  // using the done promise callback
-                        if (data.state === 'success') {
-                            wait(2000);
-                            readParties();
-                        }
-                    });
-                });
-                var candidateId = this.id;
+                // check they still have a vote 
+                var voter = localStorage.getItem('blockchain-vote-party-id'),
+                    candidate = this.id;
+                $.ajax({
+                    type        : 'GET',
+                    url         : '/api/party/read',
+                    data        : { id: voter }
+                }).done(function(data){
+                    // if they do, transfter
+                    var vote = data.data[0].votestoassign[0];
+                    if (!!vote) {
+                        transferVote(voter, vote, candidate);
+                    } else {
+                        console.log('No vote :(');
+                    }
+                })                
             });
+
+            function transferVote(voter, vote, candidate) {
+                // first, take vote from voter
+                $.ajax({
+                    type        : 'POST',
+                    url         : '/api/party/update',
+                    data        : {
+                        'id'               : voter, 
+                        'votesToAssign'    : '', 
+                        'votesTransferred' : vote, 
+                        'votesReceived'    : ''
+                    }
+                }).done( function(data) {  // using the done promise callback
+                    if (data.state === 'success') {
+                        receiveVote(candidate, vote);
+                    }
+                });
+            }
+
+            function receiveVote(candidate, vote) {
+                // first, take vote from voter
+                $.ajax({
+                    type        : 'POST',
+                    url         : '/api/party/update',
+                    data        : {
+                        'id'               : candidate, 
+                        'votesToAssign'    : '', 
+                        'votesTransferred' : '', 
+                        'votesReceived'    : vote
+                    }
+                }).done( function(data) {  // using the done promise callback
+                    if (data.state === 'success') {
+                        console.log('yippee')
+                    }
+                });
+            }
 
         </script>
     </body>

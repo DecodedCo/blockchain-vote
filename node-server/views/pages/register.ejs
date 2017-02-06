@@ -37,10 +37,11 @@
             var name = $('input[name=name]').val(),
                 uuid = guid();
             var formData = {
-                'partyId'   :   uuid,
-                'name'      :   name,
-                'voter'     :   true,
-                'candidate' :   false
+                'partyId'       :   uuid,
+                'name'          :   name,
+                'voter'         :   true,
+                'candidate'     :   false,
+                'candidateUrl'  :   ''
             };
             $.ajax({
                 type        : 'POST',

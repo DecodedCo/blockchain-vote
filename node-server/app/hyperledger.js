@@ -68,8 +68,8 @@ hyperledger.deploy = function () {
     return opt;
 }
 
-hyperledger.createParty = function (id, name, voter, candidate) {
-    return getOptions("chaincode", "invoke", "createParty", [ id, name, voter, candidate ], 2600);
+hyperledger.createParty = function (id, name, voter, candidate, candidateUrl) {
+    return getOptions("chaincode", "invoke", "createParty", [ id, name, voter, candidate, candidateUrl ], 2600);
 }
 
 hyperledger.readParty = function (id) {
@@ -78,6 +78,10 @@ hyperledger.readParty = function (id) {
 
 hyperledger.readAllParties = function () {
     return getOptions("chaincode", "query", "readAllParties", [], 1337);
+}
+
+hyperledger.updateParty = function (id, votesToAssign, votesTransferred, votesReceived) {
+    return getOptions("chaincode", "invoke", "updateParty", [ id, votesToAssign, votesTransferred, votesReceived ], 2600);
 }
 
 hyperledger.createVotesAndAssignToAll = function () {

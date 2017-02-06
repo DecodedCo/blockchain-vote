@@ -24,6 +24,7 @@ type Party struct {
     Candidate       bool        `json:"candidate"`
     VotesToAssign   []string    `json:"votestoassign"`
     VotesReceived   []string    `json:"votesreceived"`
+    CandidateUrl    string      `json:"candidateUrl"`
 }
 
 
@@ -52,8 +53,8 @@ func (slice Candidates) Swap(i, j int) {
 func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
     var emptyArgs []string
-    if len(args) != 4 { // partyId
-        err = errors.New("{\"Error\":\"Expecting 4 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
+    if len(args) != 5 { // id, name, voter, candidate, votestoassign, votesreceived, candidateUrl
+        err = errors.New("{\"Error\":\"Expecting 5 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
         fmt.Printf("\t *** %s", err)
         return nil, err
     }
@@ -90,6 +91,7 @@ func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn st
             Name: args[1],
             Voter: voter,
             Candidate: candidate,
+            CandidateUrl: args[4],
         }
         // Save new party
         if err = newParty.save(stub); err != nil {
@@ -122,7 +124,6 @@ func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn st
     return nil, nil
 } // end of dcc.createParty
 
-
 func (dcc *DecodedChainCode) readParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
     if len(args) != 1 { // id
@@ -147,7 +148,6 @@ func (dcc *DecodedChainCode) readParty(stub shim.ChaincodeStubInterface, fn stri
     fmt.Printf("\t--- Retrieved full information for Party %s", id)
     return returnSliceBytes, nil   
 }
-
 
 func (dcc *DecodedChainCode) readAllParties(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
@@ -189,7 +189,6 @@ func (dcc *DecodedChainCode) readAllParties(stub shim.ChaincodeStubInterface, fn
     return nil, nil // redundancy
 } // end of dcc.readAllParties
 
-
 func (dcc *DecodedChainCode) getParty(stub shim.ChaincodeStubInterface, args []string) (Party, error) {
     var party Party // We need to have an empty party ready to return in case of an error.
     var err error
@@ -217,11 +216,10 @@ func (dcc *DecodedChainCode) getParty(stub shim.ChaincodeStubInterface, args []s
     return party, nil
 } // end of dcc.getParty
 
-
 func (dcc *DecodedChainCode) updateParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
-    if len(args) != 3 { // Id, VotesToAssign, VotesReceived
-        err = errors.New("{\"Error\":\"Expecting 3 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
+    if len(args) != 4 { // Id, VotesToAssign, VotesTransferred, VotesReceived
+        err = errors.New("{\"Error\":\"Expecting 4 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
         fmt.Printf("\t *** %s", err)
         return nil, err
     }
@@ -237,9 +235,26 @@ func (dcc *DecodedChainCode) updateParty(stub shim.ChaincodeStubInterface, fn st
     if party.Voter && voteToAssign != "" {
         party.VotesToAssign = append(party.VotesToAssign, voteToAssign)
     }
+    // if party is a voter and there is a vote to transfer, delete from VotesToAssign slice
+    voteTransferred := args[2]
+    if party.Voter && voteTransferred != "" {
+        // check if vote exists
+        var emptyFn string
+        args := []string{voteTransferred}
+        _, err := dcc.readVote(stub, emptyFn, args)
+        if err != nil {
+            fmt.Printf("\t *** %s", err)
+            return nil, err
+        }
+        for i, v := range party.VotesToAssign {
+            if v == voteTransferred {
+                party.VotesToAssign = append(party.VotesToAssign[:i], party.VotesToAssign[i+1:]...)
+            }
+        }
+    }
     // if party is a candidate, add vote uuid to VotesReceived slice
-    voteReceived := args[2]
-    if party.Voter && voteReceived != "" {
+    voteReceived := args[3]
+    if party.Candidate && voteReceived != "" {
         party.VotesReceived = append(party.VotesReceived, voteReceived)
     }
     // Save the new party.
@@ -247,6 +262,7 @@ func (dcc *DecodedChainCode) updateParty(stub shim.ChaincodeStubInterface, fn st
         fmt.Printf("\t *** %s", err)
         return nil, err
     }
+    fmt.Printf("\t --- Updated Party %s\n", partyId)
     return nil, nil
 } // end of dcc.assignAssetToParty
 

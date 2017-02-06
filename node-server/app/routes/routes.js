@@ -2,9 +2,6 @@
 
 module.exports = function (app, requestpromise, hyperledger, socket) {
 
-    const BUFFER_SIZE = 10;
-    var BUFFER_COUNTER = 0;
-
     app.get('/', function (req, res) {
         res.status(200).render('pages/register.ejs');
     });
@@ -36,9 +33,9 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
     });
 
     app.post('/api/party/create', function (req, res) {
-        var { partyId, name, voter, candidate } = req.body;
+        var { partyId, name, voter, candidate, candidateUrl } = req.body;
         // Send it to the hyperledger application.
-        requestpromise(hyperledger.createParty(partyId, name, voter, candidate))
+        requestpromise(hyperledger.createParty(partyId, name, voter, candidate, candidateUrl))
             .then( function (data) {
                 // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
                 if ( manualErrorCheck(data) ) {
@@ -47,6 +44,25 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
                     res.status(200).json( { 
                         'state': 'success'
                     });
+                }
+                else {
+                    res.status(500).json(data);
+                }
+            })
+            .catch( function (error) {
+                res.status(500).json(error);
+            });
+    });
+
+    app.get('/api/party/read', function (req, res) {
+        requestpromise(hyperledger.readParty(req.query.id))
+            .then( function (data) {
+                if ( manualErrorCheck(data) ) {
+                    var content = '';
+                    if ( 'message' in data.result ) { // This is to avoid errors if there are no companies present.
+                        content = JSON.parse(data.result.message);
+                    }
+                    res.status(200).json({ 'state':'success', 'data': content });
                 }
                 else {
                     res.status(500).json(data);
@@ -76,16 +92,16 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
             });
     });
 
-    app.post('/api/vote/createandassigntoall', function (req, res) {
-        requestpromise(hyperledger.createVotesAndAssignToAll())
+    app.post('/api/party/update', function (req, res) {
+        var { id, votesToAssign, votesTransferred, votesReceived } = req.body;
+        requestpromise(hyperledger.updateParty(id, votesToAssign, votesTransferred, votesReceived))
             .then( function (data) {
                 // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
                 if ( manualErrorCheck(data) ) {
                     // At this moment we dont know for sure the add-data invoke was successful, we cant see internal errors.
                     // Send success as JSON
                     res.status(200).json( { 
-                        'state': 'success',
-                        'data': data
+                        'state': 'success'
                     });
                 }
                 else {
@@ -97,9 +113,8 @@ module.exports = function (app, requestpromise, hyperledger, socket) {
             });
     });
 
-    app.post('/api/vote/tocandidate', function (req, res) {
-        
-        requestpromise(hyperledger.giveVoteToCandidate(voteId, candidateId))
+    app.post('/api/vote/createandassigntoall', function (req, res) {
+        requestpromise(hyperledger.createVotesAndAssignToAll())
             .then( function (data) {
                 // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
                 if ( manualErrorCheck(data) ) {
