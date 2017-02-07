@@ -8,10 +8,8 @@
     "express": "latest",
     "hfc": "^0.6.5",
     "morgan": "latest",
-    "randomcolor": "^0.4.4",
     "request": "^2.74.0",
-    "request-promise": "latest",
-    "socket.io": "latest"
+    "request-promise": "latest"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

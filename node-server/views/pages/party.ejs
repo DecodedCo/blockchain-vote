@@ -1,33 +1,29 @@
             <div class="ui basic segment">
-                <div class="ui hidden divider"></div>
                 <h1 class="ui header" id="hi-party">Hi, <%= party.name %></h1>
-                <% if (party.voter && !!party.votestoassign.length) { %>
+                <% if (party.voter && party.votestoassign && !!party.votestoassign.length) { %>
                     <p>Choose your favourite candidate.</p>
                     <p>Think carefully - you only have one vote :)</p>
-                <% } else if (party.voter && !party.votestoassign.length) { %>
+                <% } else if (party.voter) { %>
                     <p>Wait a moment while your vote is assigned.</p>
                     <p>In the meantime - check out the candidates below :)</p>
                 <% } else { %>
                     <p>It doesn't look like you're registered to vote :(</p>
                     <p>Floating business guy says 'Soz'</p>
                     <p  style="font-size:10em;margin:0;">🕴</p>                
-                    <button class="ui blue button" id="register">
+                    <button class="ui orange button" id="register">
                         Register now
                     </button>
                 <% } %>
             </div>
+            <% if (candidates && !!candidates.length) { %>
             <div class="ui basic segment">
                 <h2 class="ui header">Candidates</h2>
             </div>
             <div class="ui basic segment">
-                <% if (party.voter) { %>
-                    <div class="ui cards" id="candidates-index">
+                    <div class="ui four doubling cards" id="candidates-index">
                         <% candidates.forEach(candidate => {%>
                             <div class="ui card">
-                                <div class="image" style="min-height: 7em; background: <%=
-                                randomcolor({
-                                luminosity: 'light'
-                                }) %>;">
+                                <div class="image" style="min-height: 7em;">
                                     <img src="<%= candidate.screenshotUrl %>" alt="">
                                 </div>
                                 <div class="content">
@@ -40,30 +36,30 @@
                                 </div>
                                 <div class="extra content">
                                     <% if (party.votestoassign && !!party.votestoassign.length) { %>
-                                        <div class="ui blue button vote-for" data-candidate-id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
+                                        <div class="ui orange button vote-for" data-candidate-id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
                                     <% } else { %>
-                                        <div class="ui disabled button">No votes to give right now</div>
+                                        <div class="ui disabled button">Vote for <%= candidate.name %></div>
                                     <% } %>
                                 </div>
                             </div>
                             <div class="ui small vote confirm modal" id="<%= candidate.id %>">
                                 <div class="header">Are you sure you want to vote for <%= candidate.name %>?</div>
                                 <div class="actions">
-                                    <div class="ui approve blue button">Yep</div>
+                                    <div class="ui approve orange button">Yep</div>
                                     <div class="ui cancel button">No</div>
                                 </div>
                             </div>
-                            <div class="ui small vote success modal" id="<%= candidate.id %>">
+                            <div class="ui small vote success modal" data-id="<%= candidate.id %>">
                                 <div class="header">You voted for <%= candidate.name %>!</div>
                                 <div class="content">Woop. Now check out how <%= candidate.name %> is doing in the competition</div>
                                 <div class="actions">
-                                    <div class="ui approve blue button">Take me to the leaderboard</div>
+                                    <div class="ui approve orange button">Take me to the leaderboard</div>
                                 </div>
                             </div>
                         <% }) %>
                     </div>
-                <% } %>
             </div>        
+            <% } %>
             <script>
 
                 $('#register').one('click', function () {
@@ -134,9 +130,15 @@
                             'votesReceived'    : vote
                         }
                     }).done( function(data) {  // using the done promise callback
-                        console.log(data);
                         if (data.state === 'success') {
-                            $('.ui.vote.success.modal#' + candidate).modal('show');
+                            // workaround for some peculiar bug with the modals
+                            $('.ui.vote.success.modal').each( function(i,element) {
+                                if ($(element).data('id') === candidate) {
+                                    $(element).modal('show');
+                                }
+                            })
+                            // console.log($('.ui.vote.success.modal'));
+                            // $('.ui.vote.success.modal#' + candidate).modal('show');
                         } else {
                             console.error('receiveVote failed')
                         }
@@ -148,7 +150,9 @@
                         blurring    : true,
                         closable    : false,
                         onDeny      : function(){},
-                        onApprove   : function() { startVoteTransfer(this.id) }
+                        onApprove   : function() {
+                            startVoteTransfer(this.id) 
+                        }
                     });
 
                 $('.ui.vote.success.modal')

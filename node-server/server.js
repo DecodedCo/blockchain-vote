@@ -1,7 +1,6 @@
 const express = require('express');    
 const bodyParser = require('body-parser');
 const requestpromise = require('request-promise');
-const randomcolor= require('randomcolor');
 
 // express app =======================================================
 const port = process.env.PORT || 3000;
@@ -10,11 +9,6 @@ const ip = "0.0.0.0" //"127.0.0.1"
 const server = app.listen(port, ip, () => {
     console.log(" --- App listening at http://%s:%s", ip, port);
 });
-
-
-// web sockets =======================================================
-const socket = require('socket.io')(server);
-
 
 // hyperledger =======================================================
 const hyperledger = require('./app/hyperledger.js');
@@ -52,7 +46,7 @@ app.use(function (req, res, next) { // update internal state with each request
 });
 
 // routes ============================================================
-require('./app/routes/routes.js')(app, requestpromise, hyperledger, socket, randomcolor);
+require('./app/routes/routes.js')(app, requestpromise, hyperledger);
 
 
 // EOF

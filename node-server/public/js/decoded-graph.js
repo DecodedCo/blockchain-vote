@@ -40,7 +40,6 @@ function labelCentre (thisLabelName) {
 }
 
 function updateBlockChainGraph(data) {
-    console.log('updateBlockChainGraph: ',data);
     var t = d3.transition().duration(750);
     // JOIN data with old data.
     var node = nodes.selectAll('.node')
@@ -110,7 +109,6 @@ function displayBlock(blockData) {
 }
 
 function processData(dataArray) {
-    console.log('processData: ',dataArray)
     var outputArray = [];
     var maxBlocks = 300;
     var startIndex = Math.max(0, dataArray.length-maxBlocks);
@@ -192,7 +190,6 @@ function parseAddOwner(ss) {
 }
 
 function parseAddAsset(ss) {
-    // console.log(ss.split('\n'))
     var output = '';
     output += 'Company (ID) <strong>' + ss.split('\n')[5].trim() + '</strong> triggered the<br/>';
     output += 'Function: <strong>RegisterAsset</strong> with:<br/>';

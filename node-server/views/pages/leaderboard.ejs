@@ -1,15 +1,14 @@
             <div class="ui basic segment">
-                <div class="ui hidden divider"></div>
-                <h1 class="ui header">The results...</h1>
+                <h1 class="ui header">Results incoming...</h1>
             </div>
             <div class="ui basic segment">
-							<div class="ui cards">							
+							<% if (!candidates.length) { %>
+								<p>No candidates registered yet.</p>
+							<% } %>
+							<div class="ui four doubling cards">							
 								<% candidates.forEach((candidate, i) => { %>
 									<div class="ui card">
-									  <div class="image" style="min-height: 7em; background: <%=
-									  	randomcolor({
-										   luminosity: 'light'
-											}) %>;">
+									  <div class="image" style="min-height: 7em;">
 											<img src="<%= candidate.screenshotUrl %>" alt="">
 									  	<div class="ui 
 											<% switch (i) {
@@ -33,10 +32,12 @@
 										  <% } %>
 									  </div>
 									  <div class="extra content">
-									  	<% if (!!candidate.votesreceived.length) { %>
+									  	<% if (candidate.votesreceived && !!candidate.votesreceived.length) { %>
 									    <i class="green check icon"></i>
-									    <% } %>
-		    							<%= candidate.votesreceived.length || 'No' %> votes
+		    								<%= candidate.votesreceived.length === 1 ? '1 vote' : candidate.votesreceived.length + ' votes'%> 
+		    							<% } else { %>
+												No votes :(
+		    							<% } %>
 									  </div>
 									</div>
 								<% }) %>

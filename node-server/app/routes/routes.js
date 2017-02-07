@@ -1,6 +1,6 @@
 // Routes
 
-module.exports = function (app, requestpromise, hyperledger, socket, randomcolor) {
+module.exports = function (app, requestpromise, hyperledger) {
 
     app.get('/', function (req, res) {
         res.status(200).render('boilerplate.ejs', { 
@@ -23,7 +23,6 @@ module.exports = function (app, requestpromise, hyperledger, socket, randomcolor
                             page: 'party', 
                             party, 
                             candidates,
-                            randomcolor,
                             chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
                         });
                     }
@@ -50,15 +49,15 @@ module.exports = function (app, requestpromise, hyperledger, socket, randomcolor
                 // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
                 if ( manualErrorCheck(data) ) {
                     // At this moment we dont know for sure the add-data invoke was successful, we cant see internal errors.
+                    var candidates = [];
                     if ( 'message' in data.result ) { // This is to avoid errors if there are no companies present.
-                        var candidates = JSON.parse(data.result.message);
-                        res.status(200).render('boilerplate.ejs', { 
-                            page: 'leaderboard',
-                            candidates,
-                            randomcolor, 
-                            chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
-                        });
+                        candidates = JSON.parse(data.result.message);
                     }
+                    res.status(200).render('boilerplate.ejs', { 
+                        page: 'leaderboard',
+                        candidates,
+                        chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
+                    });
                 }
                 else {
                     res.status(500).json(data);
