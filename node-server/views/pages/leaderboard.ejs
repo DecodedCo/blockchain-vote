@@ -6,10 +6,11 @@
 							<div class="ui cards">							
 								<% candidates.forEach((candidate, i) => { %>
 									<div class="ui card">
-									  <div class="image" style="height: 5em; background: <%=
+									  <div class="image" style="min-height: 7em; background: <%=
 									  	randomcolor({
 										   luminosity: 'light'
 											}) %>;">
+											<img src="<%= candidate.screenshotUrl %>" alt="">
 									  	<div class="ui 
 											<% switch (i) {
 												case 0:%>
