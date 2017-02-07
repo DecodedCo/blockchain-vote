@@ -55,7 +55,7 @@ hyperledger.init = function (requestpromise) {
                     })
             }
             else if ( 'result' in dataCheck && dataCheck.result.status == 'OK' ) {
-                console.log(' *** Blockchain is seems to be ready and deployed.');
+                console.log(' --- Blockchain seems to be ready and deployed.');
             }
         })
         .catch( function (errCheck) {
@@ -68,8 +68,8 @@ hyperledger.deploy = function () {
     return opt;
 }
 
-hyperledger.createParty = function (id, name, voter, candidate, candidateUrl) {
-    return getOptions("chaincode", "invoke", "createParty", [ id, name, voter, candidate, candidateUrl ], 2600);
+hyperledger.createParty = function (id, name, voter, candidate, candidateUrl, screenshotUrl) {
+    return getOptions("chaincode", "invoke", "createParty", [ id, name, voter, candidate, candidateUrl, screenshotUrl ], 2600);
 }
 
 hyperledger.readParty = function (id) {
@@ -105,7 +105,7 @@ hyperledger.getBlock = function (blockId) {
 }
 
 hyperledger.getFullBlockChain = function (requestpromise) {
-    console.log('\t *** Fetching the entire blockchain.');
+    console.log('\t --- Fetching the entire blockchain.');
     var optionsChain = hyperledger.getChain();
     // Return the promise itself.
     return requestpromise(optionsChain)
@@ -135,7 +135,6 @@ hyperledger.getFullBlockChain = function (requestpromise) {
             return chainPromise;
         })
         .then( function (chain) {
-            console.log('\t *** SUCCESS: Fetching the entire blockchain.');
             var chainPromise = new Promise( function (resolve, reject) {
                 // Blockchain ready, we now need to decode the payloads.
                 for ( var b=0; b<chain.length; b++ ) {

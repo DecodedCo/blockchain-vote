@@ -27,7 +27,6 @@ module.exports = function (app, requestpromise, hyperledger, socket, randomcolor
                             chain: hyperledger.stringToBase64(JSON.stringify(hyperledger.BLOCKCHAIN))
                         });
                     }
-                    
                 }
                 else {
                     res.status(500).json(data);
@@ -71,9 +70,29 @@ module.exports = function (app, requestpromise, hyperledger, socket, randomcolor
     });
 
     app.post('/api/party/create', function (req, res) {
-        var { partyId, name, voter, candidate, candidateUrl } = req.body;
-        // Send it to the hyperledger application.
-        requestpromise(hyperledger.createParty(partyId, name, voter, candidate, candidateUrl))
+        var { partyId, name, voter, candidate, candidateUrl } = req.body,
+            screenshotUrl = 'http://api.screenshotlayer.com/api/capture?access_key=' + 
+                            process.env.SCREENSHOTLAYER_KEY + // https://screenshotlayer.com/
+                            '&url=' + 
+                            candidateUrl +
+                            '&viewport=400x300&width=300';
+        requestpromise(screenshotUrl) // call the screenshot api here so that screenshotlayer caches the image
+            .then( function (data) {
+                if (data) {
+                    return requestpromise(hyperledger.createParty(partyId, name, voter, candidate, candidateUrl, screenshotUrl));
+                }
+                else {
+                    res.status(500).json({
+                        'state': 'error',
+                        'message': 'Failed to get image back from screenshotlayer'
+                    });
+                }
+                console.log('Screeshotlayer returns... ',data);
+                res.status(200).json( { 
+                    'state': 'success'
+                });
+                // return 
+            })
             .then( function (data) {
                 // Quick and dirty error handling. We cannot check for internal chaincode errors via the REST API.
                 if ( manualErrorCheck(data) ) {

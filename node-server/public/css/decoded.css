@@ -1,4 +1,3 @@
-
 #page-menu {
     background: white;
     border-bottom: 2px solid #ccc;
@@ -19,7 +18,16 @@
     border-top: 3px solid #aaa;
 }
 
+#footer-padding {
+    height: 160px;
+    width: 100%;
+}
+
 #graph-container {
     overflow-x: scroll;
+}
+
+#svg-container {
+    min-width: 100%;
 }
 

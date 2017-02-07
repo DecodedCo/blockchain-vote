@@ -40,7 +40,7 @@ function labelCentre (thisLabelName) {
 }
 
 function updateBlockChainGraph(data) {
-    console.log(data);
+    console.log('updateBlockChainGraph: ',data);
     var t = d3.transition().duration(750);
     // JOIN data with old data.
     var node = nodes.selectAll('.node')
@@ -110,6 +110,7 @@ function displayBlock(blockData) {
 }
 
 function processData(dataArray) {
+    console.log('processData: ',dataArray)
     var outputArray = [];
     var maxBlocks = 300;
     var startIndex = Math.max(0, dataArray.length-maxBlocks);
@@ -141,7 +142,8 @@ function processData(dataArray) {
         // Get the x-coordinate.
         obj['cx'] = 100 + margin.left + radius + obj.ix * (radius * 2 + margin.spacing);
         // extend the canvas and grid lines to accommodate blocks
-        var newWidth = obj.cx + 30;
+        var browserWidth = window.innerWidth,
+            newWidth = obj.cx < browserWidth ? browserWidth : obj.cx + 30 ; // at least browserwidth 
         svgObj.attr('width', newWidth);
         d3.selectAll('.label').attr("x2", newWidth);
         d3.selectAll('.gridline').attr("x2", newWidth - 30);

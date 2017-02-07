@@ -25,6 +25,7 @@ type Party struct {
     VotesToAssign   []string    `json:"votestoassign"`
     VotesReceived   []string    `json:"votesreceived"`
     CandidateUrl    string      `json:"candidateUrl"`
+    ScreenshotUrl   string      `json:"screenshotUrl"`
 }
 
 
@@ -53,8 +54,8 @@ func (slice Candidates) Swap(i, j int) {
 func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn string, args []string) ([]byte, error) {
     var err error
     var emptyArgs []string
-    if len(args) != 5 { // id, name, voter, candidate, votestoassign, votesreceived, candidateUrl
-        err = errors.New("{\"Error\":\"Expecting 5 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
+    if len(args) != 6 { // id, name, voter, candidate, votestoassign, votesreceived, candidateUrl, screenshotUrl
+        err = errors.New("{\"Error\":\"Expecting 6 arguments, got " + strconv.Itoa(len(args)) + ", \"Function\":\"" + fn + "\"}")
         fmt.Printf("\t *** %s", err)
         return nil, err
     }
@@ -92,6 +93,7 @@ func (dcc *DecodedChainCode) createParty(stub shim.ChaincodeStubInterface, fn st
             Voter: voter,
             Candidate: candidate,
             CandidateUrl: args[4],
+            ScreenshotUrl: args[5],
         }
         // Save new party
         if err = newParty.save(stub); err != nil {

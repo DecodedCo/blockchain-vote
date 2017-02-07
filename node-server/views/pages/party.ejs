@@ -23,10 +23,11 @@
                     <div class="ui cards" id="candidates-index">
                         <% candidates.forEach(candidate => {%>
                             <div class="ui card">
-                                <div class="image" style="height: 5em; background: <%=
+                                <div class="image" style="min-height: 7em; background: <%=
                                 randomcolor({
                                 luminosity: 'light'
                                 }) %>;">
+                                    <img src="<%= candidate.screenshotUrl %>" alt="">
                                 </div>
                                 <div class="content">
                                     <div class="header"><%= candidate.name %></div>
