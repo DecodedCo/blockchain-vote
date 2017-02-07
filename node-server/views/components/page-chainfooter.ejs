@@ -1,5 +1,8 @@
         
         <div id="footer">
+            <div id="toggle-footer">
+                <i class="large orange sort icon"></i>
+            </div>
             <div id="graph-container">
                 <svg width="1200" height="156" id="svg-container" style="background:#f7f7f7;"></svg>
             </div>
@@ -64,5 +67,17 @@
                 var data = processData(dd);
                 updateBlockChainGraph(data);
             <% } %>
+
+            var footer = $('#footer'),
+                footerPadding = $('#footer-padding');
+            $('#toggle-footer').click(function(){
+                if (parseInt(footer.height(), 10)) {
+                    footer.height('0');
+                    footerPadding.height('0');
+                } else {
+                    footer.height('160');
+                    footerPadding.height('160');
+                }
+            });
 
         </script>

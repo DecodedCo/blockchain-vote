@@ -34,13 +34,11 @@
                                         </div>
                                     <% } %>
                                 </div>
+                                <% if (party.votestoassign && !!party.votestoassign.length) { %>
                                 <div class="extra content">
-                                    <% if (party.votestoassign && !!party.votestoassign.length) { %>
                                         <div class="ui orange button vote-for" data-candidate-id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
-                                    <% } else { %>
-                                        <div class="ui disabled button">Vote for <%= candidate.name %></div>
-                                    <% } %>
                                 </div>
+                                <% } %>
                             </div>
                             <div class="ui small vote confirm modal" id="<%= candidate.id %>">
                                 <div class="header">Are you sure you want to vote for <%= candidate.name %>?</div>

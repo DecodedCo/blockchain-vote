@@ -8,18 +8,35 @@
     margin-bottom: 200px;
 }
 
+#toggle-footer {
+    background-color: #aaa;
+    padding: 2px;
+    position: absolute;
+    right: 0;
+    top: -29px;
+}
+
+#toggle-footer > i.icon {
+    margin: 0;
+}
+
+#footer, #footer-padding {
+    -webkit-transition-duration: 0.2s; /* Safari */
+    transition-duration: 0.2s;
+}
+
 #footer {
     position:fixed; 
     bottom:0px; 
     left:0px; 
-    height:160px; 
+    height:0px; 
     width:100%; 
     background: #ddd;
     border-top: 3px solid #aaa;
 }
 
 #footer-padding {
-    height: 160px;
+    height: 0px;
     width: 100%;
 }
 
