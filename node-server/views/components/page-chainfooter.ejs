@@ -1,83 +1,74 @@
-        
-        <div id="footer">
-            <div id="toggle-footer">
-                <i class="large orange sort icon"></i>
-            </div>
-            <div id="graph-container">
-                <svg width="1200" height="156" id="svg-container" style="background:#f7f7f7;"></svg>
-            </div>
-        </div>
+<div id="footer">
+    <div id="toggle-footer">
+        <i class="large orange sort icon"></i>
+    </div>
+    <div id="graph-container">
+    <svg width="1200" height="156" id="svg-container" style="background:#f7f7f7;"></svg>
+</div>
+</div>
+<div class="ui small modal" id="div-blockchain-inspector">
+<!-- <i class="close icon"></i> -->
+<div class="header"></div>
+<div class="content"></div>
+<div class="actions">
+    <div class="ui cancel button">Close</div>
+</div>
+</div>
 
-
-        <div class="ui small modal" id="div-blockchain-inspector">
-            <!-- <i class="close icon"></i> -->
-            <div class="header"></div>
-            <div class="content"></div>
-            <div class="actions">
-                <div class="ui cancel button">Close</div>
-            </div>
-        </div>
-
-        
-        <style type="text/css">
-            .node {
-                cursor: pointer;
-                fill: #f37f33;
-                opacity: 1;
-                stroke-width: 2;
-                stroke: #f37f33;
-            }
-            #table-block-inspector {
-                position: relative;
-                width: 100%;
-            }
-            #table-block-inspector td:nth-child(1) {
-                font-weight: bold;
-                vertical-align: top;
-            }
-            #table-block-inspector td:nth-child(2) {
-                max-width: 400px;
-                /* These are technically the same, but use both */
-                overflow-wrap: break-word;
-                word-wrap: break-word;
-
-                -ms-word-break: break-all;
-                /* This is the dangerous one in WebKit, as it breaks things wherever */
-                word-break: break-all;
-                /* Instead use this non-standard one: */
-                word-break: break-word;
-
-                /* Adds a hyphen where the word breaks, if supported (No Blink) */
-                -ms-hyphens: auto;
-                -moz-hyphens: auto;
-                -webkit-hyphens: auto;
-                hyphens: auto;
-            }
-        </style>
-        <script type="text/javascript" src="/js/d3.v4.min.js"></script>
-        <script type="text/javascript" src="/js/decoded-graph.js"></script>
-        <script type="text/javascript">
-
-            // On page-load it uses the node-js internal state. On broadcast it will request from the endpoint.
-            <% if ( chain != null ) { %>
-                // Decode the base64 encoding.
-                var dd = JSON.parse(window.atob("<%= chain %>"));
-                // Initialise the graph.
-                initBlockChainGraph(svgObj);
-                var data = processData(dd);
-                updateBlockChainGraph(data);
-            <% } %>
-
-            var footer = $('#footer'),
-                footerPadding = $('#footer-padding');
-            $('#toggle-footer').click(function(){
-                if (parseInt(footer.height(), 10)) {
-                    footer.height('0');
-                    footerPadding.height('0');
-                } else {
-                    footer.height('160');
-                    footerPadding.height('160');
-                }
-            });
-
-        </script>
+<style type="text/css">
+.node {
+    cursor: pointer;
+    fill: #f37f33;
+    opacity: 1;
+    stroke-width: 2;
+    stroke: #f37f33;
+}
+#table-block-inspector {
+    position: relative;
+    width: 100%;
+}
+#table-block-inspector td:nth-child(1) {
+    font-weight: bold;
+    vertical-align: top;
+}
+#table-block-inspector td:nth-child(2) {
+    max-width: 400px;
+    /* These are technically the same, but use both */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    /* This is the dangerous one in WebKit, as it breaks things wherever */
+    word-break: break-all;
+    /* Instead use this non-standard one: */
+    word-break: break-word;
+    /* Adds a hyphen where the word breaks, if supported (No Blink) */
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+</style>
+<script type="text/javascript" src="/js/d3.v4.min.js"></script>
+<script type="text/javascript" src="/js/decoded-graph.js"></script>
+<script type="text/javascript">
+// On page-load it uses the node-js internal state. On broadcast it will request from the endpoint.
+<% if ( chain != null ) { %>
+    // Decode the base64 encoding.
+    var dd = JSON.parse(window.atob("<%= chain %>"));
+    // Initialise the graph.
+    initBlockChainGraph(svgObj);
+    var data = processData(dd);
+    updateBlockChainGraph(data);
+<% } %>
+    var footer = $('#footer'),
+    footerPadding = $('#footer-padding');
+    $('#toggle-footer').click(function(){
+        if (parseInt(footer.height(), 10)) {
+            footer.height('0');
+            footerPadding.height('0');
+        } else {
+            footer.height('160');
+            footerPadding.height('160');
+        }
+    });
+</script>

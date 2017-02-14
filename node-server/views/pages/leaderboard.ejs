@@ -1,47 +1,47 @@
-            <div class="ui basic segment">
-                <h1 class="ui header">Results incoming...</h1>
-            </div>
-            <div class="ui basic segment">
-							<% if (!candidates.length) { %>
-								<p>No candidates registered yet.</p>
-							<% } %>
-							<div class="ui four doubling cards">							
-								<% candidates.forEach((candidate, i) => { %>
-									<div class="ui card">
-									  <div class="image" style="min-height: 7em;">
-											<img src="<%= candidate.screenshotUrl %>" alt="">
-									  	<div class="ui 
-											<% switch (i) {
-												case 0:%>
-												yellow
-											<% break; 
-												case 1:%>
-												grey
-											<% break; 
-												case 2:%>
-												brown
-											<% } %>
-									  	large ribbon label"><%= i+1 %></div>
-									  </div>
-									  <div class="content">
-									    <div class="header"><%= candidate.name %></div>
-									    <% if (!!candidate.candidateUrl) { %>
-										    <div class="description">
-										    	<a href="<%= candidate.candidateUrl %>" target="_blank">See project</a>
-										    </div>
-										  <% } %>
-									  </div>
-									  <div class="extra content">
-									  	<% if (candidate.votesreceived && !!candidate.votesreceived.length) { %>
-									    <i class="green check icon"></i>
-		    								<%= candidate.votesreceived.length === 1 ? '1 vote' : candidate.votesreceived.length + ' votes'%> 
-		    							<% } else { %>
-												No votes :(
-		    							<% } %>
-									  </div>
-									</div>
-								<% }) %>
-							</div>
-            </div>
-		        <script>		        
-		        </script>
+<div class="ui basic segment">
+	<h1 class="ui header">Results incoming...</h1>
+</div>
+<div class="ui basic segment">
+	<% if (!candidates.length) { %>
+	<p>No candidates registered yet.</p>
+	<% } %>
+	<div class="ui four doubling cards">
+		<% candidates.forEach((candidate, i) => { %>
+		<div class="ui card">
+			<div class="image" style="min-height: 7em;">
+				<img src="<%= candidate.screenshotUrl %>" alt="">
+				<div class="ui
+					<% switch (i) {
+					case 0:%>
+					yellow
+					<% break;
+					case 1:%>
+					grey
+					<% break;
+					case 2:%>
+					brown
+					<% } %>
+				large ribbon label"><%= i+1 %></div>
+			</div>
+			<div class="content">
+				<div class="header"><%= candidate.name %></div>
+				<% if (!!candidate.candidateUrl) { %>
+				<div class="description">
+					<a href="<%= candidate.candidateUrl %>" target="_blank">See project</a>
+				</div>
+				<% } %>
+			</div>
+			<div class="extra content">
+				<% if (candidate.votesreceived && !!candidate.votesreceived.length) { %>
+				<i class="green check icon"></i>
+				<%= candidate.votesreceived.length === 1 ? '1 vote' : candidate.votesreceived.length + ' votes'%>
+				<% } else { %>
+				No votes :(
+				<% } %>
+			</div>
+		</div>
+		<% }) %>
+	</div>
+</div>
+<script>
+</script>

@@ -1,166 +1,153 @@
-            <div class="ui basic segment">
-                <h1 class="ui header" id="hi-party">Hi, <%= party.name %></h1>
-                <% if (party.voter && party.votestoassign && !!party.votestoassign.length) { %>
-                    <p>Choose your favourite candidate.</p>
-                    <p>Think carefully - you only have one vote :)</p>
-                <% } else if (party.voter) { %>
-                    <p>Wait a moment while your vote is assigned.</p>
-                    <p>In the meantime - check out the candidates below :)</p>
-                <% } else { %>
-                    <p>It doesn't look like you're registered to vote :(</p>
-                    <p>Floating business guy says 'Soz'</p>
-                    <p  style="font-size:10em;margin:0;">🕴</p>                
-                    <button class="ui orange button" id="register">
-                        Register now
-                    </button>
+<div class="ui basic segment">
+    <h1 class="ui header" id="hi-party">Hi, <%= party.name %></h1>
+    <% if (party.voter && party.votestoassign && !!party.votestoassign.length) { %>
+    <p>Choose your favourite candidate.</p>
+    <p>Think carefully - you only have one vote :)</p>
+    <% } else if (party.voter) { %>
+    <p>Wait a moment while your vote is assigned.</p>
+    <p>In the meantime - check out the candidates below :)</p>
+    <% } else { %>
+    <p>It doesn't look like you're registered to vote :(</p>
+    <p>Floating business guy says 'Soz'</p>
+    <p  style="font-size:10em;margin:0;">🕴</p>
+    <button class="ui orange button" id="register">
+    Register now
+    </button>
+    <% } %>
+</div>
+<% if (candidates && !!candidates.length) { %>
+<div class="ui basic segment">
+    <h2 class="ui header">Candidates</h2>
+</div>
+<div class="ui basic segment">
+    <div class="ui four doubling cards" id="candidates-index">
+        <% candidates.forEach(candidate => {%>
+        <div class="ui card">
+            <div class="image" style="min-height: 7em;">
+                <img src="<%= candidate.screenshotUrl %>" alt="">
+            </div>
+            <div class="content">
+                <div class="header"><%= candidate.name %></div>
+                <% if (!!candidate.candidateUrl) { %>
+                <div class="description">
+                    <a href="<%= candidate.candidateUrl %>" target="_blank">See project</a>
+                </div>
                 <% } %>
             </div>
-            <% if (candidates && !!candidates.length) { %>
-            <div class="ui basic segment">
-                <h2 class="ui header">Candidates</h2>
+            <% if (party.votestoassign && !!party.votestoassign.length) { %>
+            <div class="extra content">
+                <div class="ui orange button vote-for" data-candidate-id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
             </div>
-            <div class="ui basic segment">
-                    <div class="ui four doubling cards" id="candidates-index">
-                        <% candidates.forEach(candidate => {%>
-                            <div class="ui card">
-                                <div class="image" style="min-height: 7em;">
-                                    <img src="<%= candidate.screenshotUrl %>" alt="">
-                                </div>
-                                <div class="content">
-                                    <div class="header"><%= candidate.name %></div>
-                                    <% if (!!candidate.candidateUrl) { %>
-                                        <div class="description">
-                                            <a href="<%= candidate.candidateUrl %>" target="_blank">See project</a>
-                                        </div>
-                                    <% } %>
-                                </div>
-                                <% if (party.votestoassign && !!party.votestoassign.length) { %>
-                                <div class="extra content">
-                                        <div class="ui orange button vote-for" data-candidate-id="<%= candidate.id %>" >Vote for <%= candidate.name %></div>
-                                </div>
-                                <% } %>
-                            </div>
-                            <div class="ui small vote confirm modal" id="<%= candidate.id %>">
-                                <div class="header">Are you sure you want to vote for <%= candidate.name %>?</div>
-                                <div class="actions">
-                                    <div class="ui approve orange button">Yep</div>
-                                    <div class="ui cancel button">No</div>
-                                </div>
-                            </div>
-                            <div class="ui small vote success modal" data-id="<%= candidate.id %>">
-                                <div class="header">You voted for <%= candidate.name %>!</div>
-                                <div class="content">Woop. Now check out how <%= candidate.name %> is doing in the competition</div>
-                                <div class="actions">
-                                    <div class="ui approve orange button">Take me to the leaderboard</div>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-            </div>        
             <% } %>
-            <script>
-
-                $('#register').one('click', function () {
-                    localStorage.clear();
-                    window.location = '/';
-                });
-
-                var voteForButton = $('.vote-for'),
-                    candidatesIndex = $('#candidates-index'),
-                    candidatesIndexContainer = candidatesIndex.parent()
-
-                voteForButton.on('click', function () {
-                    $('.ui.vote.confirm.modal#' + $(this).data('candidate-id')).modal('show');    
-                });
-
-                function startVoteTransfer(candidate) {
-                    var voter = localStorage.getItem('blockchain-vote-party-id');
-                    voteForButton
-                        .removeClass('green')
-                        .addClass('disabled')
-                        .html('Vote submitted');
-                    candidatesIndexContainer.addClass('loading');
-                    // check they still have a vote 
-                    $.ajax({
-                        type        : 'GET',
-                        url         : '/api/party/read',
-                        data        : { id: voter }
-                    }).done(function(data){
-                        // if they do, transfter
-                        var vote = data.data[0].votestoassign[0];
-                        if (!!vote) {
-                            giveVote(voter, vote, candidate);
-                        } else {
-                            console.error('No vote :(');
-                        }
-                    })
+        </div>
+        <div class="ui small vote confirm modal" id="<%= candidate.id %>">
+            <div class="header">Are you sure you want to vote for <%= candidate.name %>?</div>
+            <div class="actions">
+                <div class="ui approve orange button">Yep</div>
+                <div class="ui cancel button">No</div>
+            </div>
+        </div>
+        <div class="ui small vote success modal" data-id="<%= candidate.id %>">
+            <div class="header">You voted for <%= candidate.name %>!</div>
+            <div class="content">Woop. Now check out how <%= candidate.name %> is doing in the competition</div>
+            <div class="actions">
+                <div class="ui approve orange button">Take me to the leaderboard</div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
+<% } %>
+<script>
+$('#register').one('click', function () {
+    localStorage.clear();
+    window.location = '/';
+});
+var voteForButton = $('.vote-for'),
+    candidatesIndex = $('#candidates-index'),
+    candidatesIndexContainer = candidatesIndex.parent();
+voteForButton.on('click', function () {
+    $('.ui.vote.confirm.modal#' + $(this).data('candidate-id')).modal('show');
+});
+function startVoteTransfer(candidate) {
+    var voter = localStorage.getItem('blockchain-vote-party-id');
+    voteForButton
+        .removeClass('green')
+        .addClass('disabled')
+        .html('Vote submitted');
+    candidatesIndexContainer.addClass('loading');
+    // check they still have a vote
+    $.ajax({
+        type        : 'GET',
+        url         : '/api/party/read',
+        data        : { id: voter }
+    }).done(function(data){
+        // if they do, transfter
+        var vote = data.data[0].votestoassign[0];
+        if (!!vote) {
+            giveVote(voter, vote, candidate);
+        } else {
+            console.error('No vote :(');
+        }
+    })
+}
+function giveVote(voter, vote, candidate) {
+    // first, take vote from voter
+    $.ajax({
+        type        : 'POST',
+        url         : '/api/party/update',
+        data        : {
+            'id'               : voter,
+            'votesToAssign'    : '',
+            'votesTransferred' : vote,
+            'votesReceived'    : ''
+        }
+    }).done( function(data) {  // using the done promise callback
+        if (data.state === 'success') {
+            receiveVote(candidate, vote);
+        } else {
+            console.error('giveVote failed')
+        }
+    });
+}
+function receiveVote(candidate, vote) {
+    // first, take vote from voter
+    $.ajax({
+        type        : 'POST',
+        url         : '/api/party/update',
+        data        : {
+            'id'               : candidate,
+            'votesToAssign'    : '',
+            'votesTransferred' : '',
+            'votesReceived'    : vote
+        }
+    }).done( function(data) {  // using the done promise callback
+        if (data.state === 'success') {
+            // workaround for some peculiar bug with the modals
+            $('.ui.vote.success.modal').each( function(i,element) {
+                if ($(element).data('id') === candidate) {
+                    $(element).modal('show');
                 }
-
-                function giveVote(voter, vote, candidate) {
-                    // first, take vote from voter
-                    $.ajax({
-                        type        : 'POST',
-                        url         : '/api/party/update',
-                        data        : {
-                            'id'               : voter, 
-                            'votesToAssign'    : '', 
-                            'votesTransferred' : vote, 
-                            'votesReceived'    : ''
-                        }
-                    }).done( function(data) {  // using the done promise callback
-                        if (data.state === 'success') {
-                            receiveVote(candidate, vote);
-                        } else {
-                            console.error('giveVote failed')
-                        }
-                    });
-                }
-
-                function receiveVote(candidate, vote) {
-                    // first, take vote from voter
-                    $.ajax({
-                        type        : 'POST',
-                        url         : '/api/party/update',
-                        data        : {
-                            'id'               : candidate, 
-                            'votesToAssign'    : '', 
-                            'votesTransferred' : '', 
-                            'votesReceived'    : vote
-                        }
-                    }).done( function(data) {  // using the done promise callback
-                        if (data.state === 'success') {
-                            // workaround for some peculiar bug with the modals
-                            $('.ui.vote.success.modal').each( function(i,element) {
-                                if ($(element).data('id') === candidate) {
-                                    $(element).modal('show');
-                                }
-                            })
-                            // console.log($('.ui.vote.success.modal'));
-                            // $('.ui.vote.success.modal#' + candidate).modal('show');
-                        } else {
-                            console.error('receiveVote failed')
-                        }
-                    });
-                }
-
-                $('.ui.vote.confirm.modal')
-                    .modal({
-                        blurring    : true,
-                        closable    : false,
-                        onDeny      : function(){},
-                        onApprove   : function() {
-                            startVoteTransfer(this.id) 
-                        }
-                    });
-
-                $('.ui.vote.success.modal')
-                    .modal({
-                        blurring    : true,
-                        closable    : false,
-                        onApprove   : function() { 
-                                            window.location = '/leaderboard';
-                                            return false;
-                                        }
-                    });
-
-            </script>
+            })
+        } else {
+            console.error('receiveVote failed')
+        }
+    });
+}
+$('.ui.vote.confirm.modal')
+    .modal({
+        blurring    : true,
+        closable    : false,
+        onDeny      : function(){},
+        onApprove   : function() { startVoteTransfer(this.id) }
+    });
+$('.ui.vote.success.modal')
+    .modal({
+    blurring    : true,
+    closable    : false,
+    onApprove   : function() {
+            window.location = '/leaderboard';
+            return false;
+        }
+    });
+</script>
