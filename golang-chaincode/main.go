@@ -22,7 +22,7 @@ import (
 
     "github.com/hyperledger/fabric/core/chaincode/shim"
 
-    utils "./utils"
+    utils "github.com/DecodedCo/blockchain-vote/golang-chaincode/utils"
 )
 
 
