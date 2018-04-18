@@ -15,7 +15,7 @@
 ```
 mkdir hyperledger
 cd hyperledger
-git clone git@github.com:hyperledger/fabric.git
+git clone -b v0.6 http://gerrit.hyperledger.org/r/fabric
 cd fabric
 git fetch
 git checkout v0.6
